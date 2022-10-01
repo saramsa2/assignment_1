@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+{{ category.name }}
+{% endblock %}
+
+{% block content %}
+    <form action="{% url 'class_create' %}">
+        <input type="submit" value="Create new Class">
+    </form>
+    <table align="center">
+    {% for class in object_list %}
+        <tr>
+            <td>
+                {{ class.number }}-
+            </td>
+            <td>
+                <form action="{% url 'class_update' class.id %}">
+                    <input type="submit" value="Update">
+                </form>
+            </td>
+            <td>
+                <form action="{% url 'class_delete' class.id %}">
+                    <input type="submit" value="Delete">
+                </form>
+            </td>
+        </tr>
+
+    {% endfor %}
+    </table>
+{% endblock %}

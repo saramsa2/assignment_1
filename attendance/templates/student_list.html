@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}
+{{ category.name }}
+{% endblock %}
+
+{% block content %}
+    <form action="{% url 'student_create' %}">
+        <input type="submit" value="Create new Student">
+    </form>
+    <table align="center">
+    {% for student in object_list %}
+        <tr>
+            <td>
+                {{ student.student_id }}
+            </td>
+            <td>
+                {{ student.user.first_name }} {{ student.user.last_name }}
+            </td>
+            <td>
+                {{ student.user.email }}
+            </td>
+            <td>
+                <form action="{% url 'student_detail' student.student_id %}">
+                    <input type="submit" value="Update">
+                </form>
+            </td>
+            <td>
+                <form action="{% url 'student_delete' student.student_id %}">
+                    <input type="submit" value="Delete">
+                </form>
+            </td>
+        </tr>
+
+    {% endfor %}
+    </table>
+{% endblock %}

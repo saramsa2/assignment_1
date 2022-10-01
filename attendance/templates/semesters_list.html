@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+{{ category.name }}
+{% endblock %}
+
+{% block content %}
+    <form action="{% url 'semester_create' %}">
+        <input type="submit" value="Create new semester">
+    </form>
+    <table align="center">
+    {% for semester in object_list %}
+        <tr>
+            <td>
+                {{ semester.semester }} ( {{ semester.year }} )
+            </td>
+            <td>
+                <form action="{% url 'semester_update' semester.id %}">
+                    <input type="submit" value="Update">
+                </form>
+            </td>
+            <td>
+                <form action="{% url 'semester_delete' semester.id %}">
+                    <input type="submit" value="Delete">
+                </form>
+            </td>
+        </tr>
+
+    {% endfor %}
+    </table>
+{% endblock %}

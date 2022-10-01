@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}
+{{ title }}
+{% endblock %}
+{% block content %}
+    <ul><form method="post">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <button>Sign up</button>
+    </form></ul>
+{% endblock %}

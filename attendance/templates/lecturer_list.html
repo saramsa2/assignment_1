@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}
+{{ category.name }}
+{% endblock %}
+
+{% block content %}
+    <form action="{% url 'lecturer_create' %}">
+        <input type="submit" value="Create new Lecturer">
+    </form>
+    <table align="center">
+    {% for lecturer in object_list %}
+        <tr>
+            <td>
+                {{ lecturer.staff_id }}
+            </td>
+            <td>
+                {{ lecturer.user.first_name }} {{ lecturer.user.last_name }}
+            </td>
+            <td>
+                {{ lecturer.user.email }}
+            </td>
+            <td>
+                <form action="{% url 'lecturer_detail' lecturer.staff_id %}">
+                    <input type="submit" value="Update">
+                </form>
+            </td>
+            <td>
+                <form action="{% url 'lecturer_delete' lecturer.staff_id %}">
+                    <input type="submit" value="Delete">
+                </form>
+            </td>
+        </tr>
+
+    {% endfor %}
+    </table>
+{% endblock %}

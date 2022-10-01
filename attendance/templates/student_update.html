@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}
+{{ category.name }}
+{% endblock %}
+
+{% block content %}
+
+    <form method="post" action="{% url 'student_update' %}">
+    {% csrf_token %}
+        <table>
+            <tr>
+                <td><input type="hidden" name="student_id" value="{{ student.student_id }}"></td>
+            </tr>
+            <tr>
+                <td>username :</td>
+                <td>{{ student.user.username }}</td>
+            </tr>
+            <tr>
+                <td>Password :</td>
+                <td><input type="password" name="password1" value="{{ student.user.password }}"></td>
+            </tr>
+            <tr>
+                <td>Password confirmation:</td>
+                <td><input type="password" name="password2" value="{{ student.user.password }}"></td>
+            </tr>
+            <tr>
+                <td>First Name :</td>
+                <td><input type="text" name="firstname" value="{{ student.user.first_name }}"></td>
+            </tr>
+            <tr>
+                <td>Last Name :</td>
+                <td><input type="text" name="lastname" value="{{ student.user.last_name }}"></td>
+            </tr>
+            <tr>
+                <td>Email :</td>
+                <td><input type="text" name="email" value="{{ student.user.email }}"></td>
+            </tr>
+            <tr>
+                <td>Day of Birth :</td>
+                <td><input type="date" name="dob" value="{{ student.DOB|date:'Y-m-d' }}"></td>
+            </tr>
+        </table>
+        <input type="submit" value="Update">
+    </form>
+
+
+{% endblock %}
