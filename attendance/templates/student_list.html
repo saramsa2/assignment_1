@@ -4,9 +4,16 @@
 {% endblock %}
 
 {% block content %}
-    <form action="{% url 'student_create' %}">
+    <table><tr>
+    <td><form action="{% url 'student_create' %}">
         <input type="submit" value="Create new Student">
-    </form>
+    </form></td>
+    <td><form method="post" action="{% url 'student_upload' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+        <input type="file" name="myfile">
+        <button>Upload</button>
+    </form></td>
+    </tr></table>
     <table align="center">
     {% for student in object_list %}
         <tr>

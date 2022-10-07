@@ -5,26 +5,27 @@
 
 {% block content %}
     <form action="{% url 'class_create' %}">
+    {% csrf_token %}
         <input type="submit" value="Create new Class">
     </form>
-    <table align="center">
+    <table>
     {% for class in object_list %}
         <tr>
-            <td>
-                {{ class.number }}-
-            </td>
+            <td><a href="{% url 'class_attendance_list' class.id 1 %}">{{ class.number }}
+            </a></td>
             <td>
                 <form action="{% url 'class_update' class.id %}">
+                    {% csrf_token %}
                     <input type="submit" value="Update">
                 </form>
             </td>
             <td>
                 <form action="{% url 'class_delete' class.id %}">
+                    {% csrf_token %}
                     <input type="submit" value="Delete">
                 </form>
             </td>
         </tr>
-
     {% endfor %}
     </table>
 {% endblock %}

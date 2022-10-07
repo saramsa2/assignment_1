@@ -1,47 +1,75 @@
 {% extends "base.html" %}
 {% block title %}
-{{ category.name }}
+Lecturer ID: {{ lecturer.id }}
 {% endblock %}
 
 {% block content %}
-
-    <form method="post" action="{% url 'lecturer_update' %}">
-    {% csrf_token %}
-        <table>
-            <tr>
-                <td><input type="hidden" name="staff_id" value="{{ lecturer.staff_id }}"></td>
-            </tr>
-            <tr>
-                <td>username :</td>
-                <td>{{ lecturer.user.username }}</td>
-            </tr>
-            <tr>
-                <td>Password :</td>
-                <td><input type="password" name="password1" value="{{ lecturer.user.password }}"></td>
-            </tr>
-            <tr>
-                <td>Password confirmation:</td>
-                <td><input type="password" name="password2" value="{{ lecturer.user.password }}"></td>
-            </tr>
-            <tr>
-                <td>First Name :</td>
-                <td><input type="text" name="firstname" value="{{ lecturer.user.first_name }}"></td>
-            </tr>
-            <tr>
-                <td>Last Name :</td>
-                <td><input type="text" name="lastname" value="{{ lecturer.user.last_name }}"></td>
-            </tr>
-            <tr>
-                <td>Email :</td>
-                <td><input type="text" name="email" value="{{ lecturer.user.email }}"></td>
-            </tr>
-            <tr>
-                <td>Day of Birth :</td>
-                <td><input type="date" name="dob" value="{{ lecturer.DOB|date:'Y-m-d' }}"></td>
-            </tr>
-        </table>
-        <input type="submit" value="Update">
+    {% if user.is_superuser %}
+        <section class="mt-5 p-4 d-flex justify-content-center pb-4">
+            <div class="bg-white border rounded-5">
+                <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                    <div style="width: 26rem;">
+                        <div class="form-group clearfix m-2">
+                            <h3>Update Lecturer</h3>
+                            <form method="post" action="{% url 'lecturer_update' %}">
+                                {% csrf_token %}
+                                <div class="form-group clearfix m-2">
+                                    <input type="hidden" name="staff_id" value="{{ lecturer.staff_id }}">
+                                    <div class="form-group clearfix m-2">
+                                        <label for="username" class="col-md-4 control-label text-right">Username :</label>
+                                        <div class="">
+                                            <input name="username" value="{{ lecturer.user.username }}" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="password1" class="col-md-4 control-label text-right">Password :</label>
+                                        <div class="">
+                                            <input type="password" name="password1" class="form-control" value="{{ lecturer.user.password }}"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="password2" class="col-md-10 control-label text-right ">Password confirmation:</label>
+                                        <div>
+                                            <input type="password" name="password2" class="form-control" value="{{ lecturer.user.password }}"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="firstname" class="col-md-4 control-label text-right">First Name :</label>
+                                        <div>
+                                            <input type="text" name="firstname" class="form-control" value="{{ lecturer.user.first_name }}"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="lastname" class="col-md-4 control-label text-right">Last Name :</label>
+                                        <div>
+                                            <input type="text" name="lastname" class="form-control"  value="{{ lecturer.user.last_name }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="email" class="col-md-4 control-label text-right">Email :</label>
+                                        <div>
+                                            <input type="text" name="email" class="form-control" value="{{ lecturer.user.email }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group clearfix m-2">
+                                        <label>Day of Birth :</label>
+                                        <div>
+                                            <input type="date" name="dob" class="form-control" value="{{ lecturer.DOB|date:'Y-m-d' }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-offset-4 mt-5 ms-5 me-5">
+                                        <input type="submit" value="Update" class="btn btn-success form-control">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
     </form>
 
-
+    {% else %}
+        <h1>You does not have authentication</h1>
+    {% endif %}
 {% endblock %}

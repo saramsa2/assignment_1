@@ -1,44 +1,91 @@
 {% extends "base.html" %}
 {% block title %}
-{{ category.name }}
+New Lecturer
 {% endblock %}
 
 {% block content %}
+    {% if user.is_superuser %}
+    <section class="mt-5 p-4 d-flex justify-content-center pb-4">
+        <div class="bg-white border rounded-5">
+            <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                <div style="width: 26rem;">
+                    <div class="form-group clearfix m-2">
+                        <h3>New Lecturer</h3>
 
-    <form method="post" action="{% url 'lecturer_create' %}">
-    {% csrf_token %}
-        <table>
-            <tr>
-                <td>ID :</td>
-                <td><input type="text" name="username"></td>
-            </tr>
-            <tr>
-                <td>Password :</td>
-                <td><input type="password" name="password1"></td>
-            </tr>
-            <tr>
-                <td>Password confirmation:</td>
-                <td><input type="password" name="password2"></td>
-            </tr>
-            <tr>
-                <td>First Name :</td>
-                <td><input type="text" name="firstname"></td>
-            </tr>
-            <tr>
-                <td>Last Name :</td>
-                <td><input type="text" name="lastname"></td>
-            </tr>
-            <tr>
-                <td>Email :</td>
-                <td><input type="text" name="email"></td>
-            </tr>
-            <tr>
-                <td>Day of Birth :</td>
-                <td><input type="date" name="dob"></td>
-            </tr>
-        </table>
-        <input type="submit" value="Sign Up">
-    </form>
+                        <form method="post" action="{% url 'lecturer_create' %}">
+                            {% csrf_token %}
+                            <div class="form-group clearfix m-2">
+                                <tr>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="username" class="col-md-4 control-label text-right">Username :</label>
+                                        <div class="">
+                                            <input name="username" value="" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                </tr>
+                                <tr>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="password1" class="col-md-4 control-label text-right">Password :</label>
+                                        <div class="">
+                                            <input name="password1" value="" type="password" class="form-control" />
+                                        </div>
+                                    </div>
+                                </tr>
+                                <tr>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="password2" class="col-md-4 control-label text-right">Password confirmation :</label>
+                                        <div class="">
+                                            <input name="password2" value="" type="password" class="form-control" />
+                                        </div>
+                                    </div>
+                                </tr>
+                                <tr>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="firstname" class="col-md-4 control-label text-right">First Name :</label>
+                                        <div class="">
+                                            <input name="firstname" value="" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                </tr>
+                                <tr>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="lastname" class="col-md-4 control-label text-right">Last Name :</label>
+                                        <div class="">
+                                            <input name="lastname" value="" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                </tr>
+                                <tr>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="email" class="col-md-4 control-label text-right">Email :</label>
+                                        <div class="">
+                                            <input name="email" value="" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                </tr>
+                                <tr>
+                                    <div class="form-group clearfix m-2">
+                                        <label for="dob" class="col-md-4 control-label text-right">Day of Birth :</label>
+                                        <div class="">
+                                            <input name="dob" value="" type="date" class="form-control" />
+                                        </div>
+                                    </div>
+                                </tr>
 
+                            </div>
+                            <div class="col-md-offset-4 mt-5 ms-5 me-5">
 
+                                <input type="submit" value="Create" class="btn btn-success form-control">
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    {% else %}
+        <h1>You does not have authentication</h1>
+    {% endif %}
 {% endblock %}

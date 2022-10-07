@@ -1,4 +1,6 @@
+
 from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
@@ -7,11 +9,18 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView
 
 from attendance.forms import semesterCreateForm, courseCreateForm, RegistrationForm, classCreateForm
-from attendance.models import Semester, Course, Lecturer, Class, Student
+from attendance.models import Semester, Course, Lecturer, Class, Student, CollegeDay, Attendance
 
+import pandas as pd
 
 def index(request):
-    return HttpResponseRedirect(reverse('home'))
+    if(request.user.is_authenticated):
+        if Student.objects.filter(user=request.user).exists():
+            return redirect('studnet_attendance')
+        else:
+            return redirect('class_list')
+    else:
+        return redirect('login')
 
 
 class semestersList(ListView):
@@ -29,7 +38,7 @@ class semesterCreate(CreateView):
 
 class semesterUpdate(UpdateView):
     model = Semester
-    template_name = 'semester_update.html'
+    template_name = 'semester_create.html'
     form_class = semesterCreateForm
     success_url = reverse_lazy("semesters_list")
 
@@ -54,7 +63,7 @@ class courseCreate(CreateView):
 
 class courseUpdate(UpdateView):
     model = Course
-    template_name = 'course_update.html'
+    template_name = 'course_create.html'
     form_class = courseCreateForm
     success_url = reverse_lazy('courses_list')
 
@@ -87,18 +96,21 @@ def lecturerCreate(request):
         password2 = request.POST.get('password2')
         dob = request.POST.get('dob')
         if password1 == password2:
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                first_name=firstname,
-                last_name=lastname,
-            )
-            user.set_password(password1)
-            user.save()
-            lecturer = Lecturer(user=user)
-            lecturer.DOB = dob
-            lecturer.save()
-            return HttpResponseRedirect(reverse_lazy('lecturer_list'))
+            try:
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    first_name=firstname,
+                    last_name=lastname,
+                )
+                user.set_password(password1)
+                user.save()
+                lecturer = Lecturer(user=user)
+                lecturer.DOB = dob
+                lecturer.save()
+                return HttpResponseRedirect(reverse_lazy('lecturer_list'))
+            except:
+                return redirect('lecturerCreate')
         else:
             return render(request, 'lecturer_create.html')
     return render(request, "lecturer_create.html")
@@ -212,6 +224,42 @@ def studentDelete(request, student_id):
     return redirect('student_list')
 
 
+def studentAddFromFile(request):
+    if request.method=='POST' and request.FILES["myfile"]:
+        myfile = request.FILES["myfile"]
+        fs = FileSystemStorage()
+        filename = fs.save(myfile.name, myfile)
+        upload_file_url = fs.url(filename)
+        excel_data = pd.read_excel(myfile)
+        data = pd.DataFrame(excel_data)
+        usernames = data["Username"].tolist()
+        firstnames = data["First Name"].tolist()
+        lastnames = data["Last Name"].tolist()
+        emails = data["Email"].tolist()
+        dobs = data["DOB"].tolist()
+
+        i = 0
+        while i < len(usernames):
+            username = usernames[i]
+            firstname = firstnames[i]
+            lastname = lastnames[i]
+            email = emails[i]
+            dob = dobs[i]
+            password = str(dobs[i]).split(" ")[0].replace("-", "")
+            user = User.objects.create_user(username=username)
+            user.first_name = firstname
+            user.last_name = lastname
+            user.email = email
+            user.set_password(password)
+            user.save()
+            student = Student(user=user)
+            student.DOB = dob
+            student.save()
+            i = i + 1
+        return HttpResponseRedirect(reverse_lazy('student_list'))
+    return HttpResponseRedirect(reverse_lazy('student_list'))
+
+
 class classList(ListView):
     model = Class
     template_name = 'class_list.html'
@@ -235,3 +283,68 @@ def classDelete(request, pk):
     theClass = Class.objects.get(id=pk)
     theClass.delete()
     return HttpResponseRedirect(reverse('class_list'))
+
+
+def classAttendanceList(request, pk, att_date_id):
+    theClass = Class.objects.get(id=pk)
+    attendance = Attendance.objects.filter(theClass=theClass).order_by('-collegeDay__date')
+    attendanceDay = attendance.values_list('collegeDay').distinct()
+    attDateList = list()
+    for dayId in attendanceDay:
+        newId = str(dayId)
+        newId = newId[1:len(newId)-2]
+        attDateList.append(CollegeDay.objects.get(id=newId))
+
+    context = {'class': theClass,
+               'attendance': attendance,
+               'attDateList': attDateList,
+               'attDateId': att_date_id}
+    return render(request, 'class_attendance_list.html', context)
+
+
+# def classAttendance(request, pk):
+#     theClass = Class.objects.get(id=pk)
+#     attendance = Attendance.objects.filter(theClass=theClass)
+#     students = theClass.student.all()
+#     context = {'class': theClass,
+#                'students': students,
+#                'attendance': attendance}
+#     return render(request, 'class_attendance.html', context)
+
+
+def collegeDayCreate(request, pk):
+    if request.method == 'POST':
+        date = request.POST.get('new_college_day')
+        theClass = Class.objects.get(id=pk)
+        collegeDay = CollegeDay(date=date)
+        collegeDay.save()
+        for student in theClass.student.all():
+            attendance = Attendance(student=student)
+            attendance.collegeDay = collegeDay
+            attendance.theClass = theClass
+            attendance.save()
+    return redirect('class_attendance_list', pk, '1')
+
+def attendanceToggle(request, pk, attend_id, att_date_id):
+    attendance = Attendance.objects.get(id=attend_id)
+    attendance.attendance = not attendance.attendance
+    attendance.save()
+    return redirect('class_attendance_list', pk, att_date_id)
+
+
+def studentAttendance(request):
+    user = request.user;
+    student = Student.objects.get(user=user)
+    attendance = Attendance.objects.filter(student=student).order_by('theClass__number')
+    theClasses = attendance.values_list('theClass__number').order_by().distinct()
+    theClass = list()
+    for oldClass in theClasses:
+        tempClass = oldClass.__str__()
+        theClass.append(tempClass[1:len(tempClass)-2])
+    context = {'user': user,
+               'student': student,
+               'attendance': attendance,
+               'class': theClass}
+    return render(request, 'student_attendance.html', context)
+
+

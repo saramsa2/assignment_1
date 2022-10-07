@@ -5,7 +5,7 @@ from django.db import models
 # Create your models here.
 class Lecturer(models.Model):
     staff_id = models.AutoField(primary_key=True)
-    DOB = models.DateField()
+    DOB = models.DateField(blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='lecturer_user')
 
     def __str__(self):
@@ -13,7 +13,7 @@ class Lecturer(models.Model):
 
 class Student(models.Model):
     student_id = models.AutoField(primary_key=True)
-    DOB = models.DateField()
+    DDOB = models.DateField(blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_user')
 
     def __str__(self):
@@ -41,7 +41,7 @@ class Class(models.Model):
     semester = models.ForeignKey(Semester,  on_delete=models.CASCADE, null=False, blank=False)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=False, blank=False)
     lecturer = models.ForeignKey(Lecturer, on_delete=models.SET_NULL, null=True, blank=True)
-    student = models.ManyToManyField(Student, null=True, blank=True, verbose_name='student')
+    student = models.ManyToManyField(Student, null=True, blank=True, verbose_name='enrolled student')
 
 
     def __str__(self):
@@ -49,7 +49,16 @@ class Class(models.Model):
 
 class CollegeDay(models.Model):
     date = models.DateField()
-    theClass = models.ManyToManyField(Class, blank=False)
+    theClass = models.ManyToManyField(Class, through='Attendance', null=True)
 
     def __str__(self):
-        return self.theClass
+        return self.date.__str__()
+
+class Attendance(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, default=False)
+    attendance = models.BooleanField(default=False)
+    theClass = models.ForeignKey(Class, on_delete=models.CASCADE)
+    collegeDay = models.ForeignKey(CollegeDay, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.student.user.first_name +" "+ self.student.user.last_name

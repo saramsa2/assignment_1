@@ -1,36 +1,63 @@
 {% extends "base.html" %}
 {% block title %}
-{{ category.name }}
+Lecturer
 {% endblock %}
 
 {% block content %}
-    <form action="{% url 'lecturer_create' %}">
-        <input type="submit" value="Create new Lecturer">
-    </form>
-    <table align="center">
-    {% for lecturer in object_list %}
-        <tr>
-            <td>
-                {{ lecturer.staff_id }}
-            </td>
-            <td>
-                {{ lecturer.user.first_name }} {{ lecturer.user.last_name }}
-            </td>
-            <td>
-                {{ lecturer.user.email }}
-            </td>
-            <td>
-                <form action="{% url 'lecturer_detail' lecturer.staff_id %}">
-                    <input type="submit" value="Update">
-                </form>
-            </td>
-            <td>
-                <form action="{% url 'lecturer_delete' lecturer.staff_id %}">
-                    <input type="submit" value="Delete">
-                </form>
-            </td>
-        </tr>
+    {% if user.is_superuser %}
+    <section class="mt-2 p-3 d-flex justify-content-center pb-4">
+    <div class="col-0  m-1">
+        <h2>LECTURER</h2>
+    </div>
+    </section>
+    <div class="card container">
+        <div class="col-0 align-self-end m-3">
+            <form action="{% url 'lecturer_create' %}">
+                {% csrf_token %}
+                <input type="submit" value="Create new lecturer" class="p-2">
+            </form>
+        </div>
 
-    {% endfor %}
-    </table>
+        <div class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 700px">
+            <table class="table table-striped mb-0 card-body p-0">
+                <thead class="table-dark  ">
+                    <tr>
+                        <th scope="col">Staff ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Update</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lecturer in object_list %}
+                    <tr>
+                        <td>
+                            {{ lecturer.staff_id }}
+                        </td>
+                        <td>
+                            {{ lecturer.user.first_name }} {{ lecturer.user.last_name }}
+                        </td>
+                        <td>
+                            {{ lecturer.user.email }}
+                        </td>
+                        <td>
+                            <form action="{% url 'lecturer_detail' lecturer.staff_id %}">
+                                <input type="submit" value="Update">
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{% url 'lecturer_delete' lecturer.staff_id %}">
+                                <input type="submit" value="Delete">
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+        <h1>You does not have authentication</h1>
+    {% endif %}
 {% endblock %}

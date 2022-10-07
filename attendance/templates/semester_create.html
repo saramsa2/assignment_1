@@ -1,14 +1,44 @@
 {% extends "base.html" %}
 {% block title %}
-{{ category.name }}
+    {% if semester.year == null %}
+        New Semester
+    {% else %}
+        {{ semester.semester }} ( {{ semester.year }} )
+    {% endif %}
+
 {% endblock %}
 
 {% block content %}
-    <h3>New Semester</h3>
-    <form method="post">
-    {% csrf_token %}
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Create">
-    </form>
+    {% if user.is_superuser %}
+    <section class="mt-5 p-4 d-flex justify-content-center pb-4">
+        <div class="bg-white border rounded-5">
+            <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                <div style="width: 26rem;">
+                    <div class="form-group clearfix m-2">
+                        {% if semester.year == null %}
+                        <h3>New Semester</h3>
+                        {% else %}
+                        <h3>Update Semester</h3>
+                        {% endif %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="form-group clearfix m-2">
+                                {{ form.as_p }}
+                            </div>
+                            <div class="col-md-offset-4 mt-5 ms-5 me-5">
+                                {% if semester.year == null %}
+                                <input type="submit" value="Create" class="btn btn-success form-control">
+                                {% else %}
+                                <input type="submit" value="Update" class="btn btn-success form-control">
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+    {% else %}
+        <h1>You does not have authentication</h1>
+    {% endif %}
 {% endblock %}

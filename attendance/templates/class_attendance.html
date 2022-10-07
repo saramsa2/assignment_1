@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}
+{{ category.name }}
+{% endblock %}
+
+{% block content %}
+    <h3>{{ class.course }}-{{ class.number }}</h3>
+    <form action="{% url 'college_day_create' class.id %}" method="post">
+    <select></select>
+    {% csrf_token %}
+        <input type="date" name="new_college_day" >
+        <input type="submit" value="Create new Date">
+    </form>
+    <form
+    <select>
+        {% for date in collegeDay %}
+        <option value="{{ date.id }}">{{ date.date }}</option>
+        {% endfor %}
+    </select>
+
+    <table class="table table-bordered">
+        <tr>
+            <th scope="col">Attend</th>
+            <th scope="col">No show</th>
+        </tr>
+        <tr><td>
+        {% for student in class.student.all.order_by %}
+            {% if class.student.attendance %}
+                <form action="{% url 'attendance_toggle' class.id %}">
+                    <p><input type="button" value="{{ student.user.username }}"></p>
+                </form>
+            {% endif %}
+        {% endfor %}
+        </td>
+        <td>
+        {% for student in class.student.all.order_by %}
+            {% if not class.student.attendance %}
+                <form action="attendance_toggle">
+                    <p><input type="button" value="{{ student.user.username }}"></p>
+                </form>
+            {% endif %}
+        {% endfor %}
+        </td>
+    </tr></table>
+
+    <form method="post" action="">
+    {% csrf_token %}
+        <input type="submit" value="Update">
+    </form>
+{% endblock %}

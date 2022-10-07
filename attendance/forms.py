@@ -3,7 +3,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from attendance.models import Semester, Course, Class, Lecturer
+from attendance.models import Semester, Course, Class
 
 
 class semesterCreateForm(forms.ModelForm):
@@ -12,8 +12,8 @@ class semesterCreateForm(forms.ModelForm):
         fields = ['year', 'semester']
 
         widgets = {
-            'year': forms.NumberInput(attrs={"class": "form-content", "placeholder": "year"}),
-            'semester': forms.TextInput(attrs={"class": "form-content", "placeholder": "semester"}),
+            'year': forms.NumberInput(attrs={"class": "form-control", "placeholder": "year"}),
+            'semester': forms.TextInput(attrs={"class": "form-control", "placeholder": "semester"}),
         }
 
 
@@ -23,8 +23,8 @@ class courseCreateForm(forms.ModelForm):
         fields = ['code', 'name']
 
         widgets = {
-            'code': forms.TextInput(attrs={"class": "form-content", "placeholder": "code"}),
-            'name': forms.TextInput(attrs={"class": "form-content", "placeholder": "name"}),
+            'code': forms.TextInput(attrs={"class": "form-control", "placeholder": "code"}),
+            'name': forms.TextInput(attrs={"class": "form-control", "placeholder": "name"}),
         }
 
 
@@ -35,17 +35,13 @@ class RegistrationForm(UserCreationForm):
 
 
 class classCreateForm(forms.ModelForm):
-    # course = forms.ModelChoiceField(queryset=Course.objects.all())
-    # semester = forms.ModelChoiceField(queryset=Semester.objects.all())
-    # lecturer = forms.ModelChoiceField(queryset=Lecturer.objects.all())
-
     class Meta:
         model = Class
         fields = ['number', 'semester', 'course', 'lecturer', 'student']
         widgets = {
-            'number': forms.NumberInput(attrs={"class": "form-content", "placeholder": "code"}),
-            'semester': forms.Select(attrs={'class': 'form-content'}),
-            'course': forms.Select(attrs={'class': 'form-content'}),
-            'lecturer': forms.Select(attrs={'class': 'form-content'}),
+            'number': forms.NumberInput(attrs={"class": "form-control", "placeholder": "code"}),
+            'semester': forms.Select(attrs={'class': 'form-control'}),
+            'course': forms.Select(attrs={'class': 'form-control'}),
+            'lecturer': forms.Select(attrs={'class': 'form-control'}),
             'student': FilteredSelectMultiple('student', False),
         }
