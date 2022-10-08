@@ -14,7 +14,7 @@ Semester
         <div class="col-0 align-self-end m-3">
             <form action="{% url 'semester_create' %}">
                 {% csrf_token %}
-                <input type="submit" value="Create new semester" class="p-2">
+                <input type="submit" value="Create new semester" class="p-2 m-2 btn btn-primary dropdown-toggle">
             </form>
         </div>
             <div class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 700px">
