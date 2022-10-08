@@ -7,7 +7,7 @@ from attendance.views import semestersList, semesterUpdate, semesterDelete, seme
     courseUpdate, courseDelete, lecturerList, lecturerCreate, RegistrationView, lecturerUpdate, lecturerDetail, \
     lecturerDelete, classList, classCreate, classUpdate, classDelete, studentList, studentCreate, studentDetail, \
     studentUpdate, studentDelete, studentAddFromFile, collegeDayCreate, attendanceToggle, \
-    classAttendanceList, studentAttendance, index
+    classAttendanceList, studentAttendance, index, sendEmail
 
 urlpatterns = [
     path('', index, name='home'),
@@ -43,5 +43,6 @@ urlpatterns = [
     path('class/<int:pk>/<int:att_date_id>/attendance/list', classAttendanceList, name='class_attendance_list'),
     path('Class/<int:pk>/attendance/<int:attend_id>/student/<int:att_date_id>/', attendanceToggle,
          name='attendance_toggle'),
-    path('student/attendance',studentAttendance, name='studnet_attendance')
+    path('student/attendance/',studentAttendance, name='student_attendance'),
+    path('student/email/', sendEmail, name='send_email'),
 ]

@@ -1,6 +1,7 @@
 
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
+from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
@@ -16,7 +17,7 @@ import pandas as pd
 def index(request):
     if(request.user.is_authenticated):
         if Student.objects.filter(user=request.user).exists():
-            return redirect('studnet_attendance')
+            return redirect('student_attendance')
         else:
             return redirect('class_list')
     else:
@@ -225,39 +226,42 @@ def studentDelete(request, student_id):
 
 
 def studentAddFromFile(request):
-    if request.method=='POST' and request.FILES["myfile"]:
-        myfile = request.FILES["myfile"]
-        fs = FileSystemStorage()
-        filename = fs.save(myfile.name, myfile)
-        upload_file_url = fs.url(filename)
-        excel_data = pd.read_excel(myfile)
-        data = pd.DataFrame(excel_data)
-        usernames = data["Username"].tolist()
-        firstnames = data["First Name"].tolist()
-        lastnames = data["Last Name"].tolist()
-        emails = data["Email"].tolist()
-        dobs = data["DOB"].tolist()
+    try:
+        if request.method=='POST' and request.FILES["myfile"]:
+            myfile = request.FILES["myfile"]
+            fs = FileSystemStorage()
+            filename = fs.save(myfile.name, myfile)
+            upload_file_url = fs.url(filename)
+            excel_data = pd.read_excel(myfile)
+            data = pd.DataFrame(excel_data)
+            usernames = data["Username"].tolist()
+            firstnames = data["First Name"].tolist()
+            lastnames = data["Last Name"].tolist()
+            emails = data["Email"].tolist()
+            dobs = data["DOB"].tolist()
 
-        i = 0
-        while i < len(usernames):
-            username = usernames[i]
-            firstname = firstnames[i]
-            lastname = lastnames[i]
-            email = emails[i]
-            dob = dobs[i]
-            password = str(dobs[i]).split(" ")[0].replace("-", "")
-            user = User.objects.create_user(username=username)
-            user.first_name = firstname
-            user.last_name = lastname
-            user.email = email
-            user.set_password(password)
-            user.save()
-            student = Student(user=user)
-            student.DOB = dob
-            student.save()
-            i = i + 1
+            i = 0
+            while i < len(usernames):
+                username = usernames[i]
+                firstname = firstnames[i]
+                lastname = lastnames[i]
+                email = emails[i]
+                dob = dobs[i]
+                password = str(dobs[i]).split(" ")[0].replace("-", "")
+                user = User.objects.create_user(username=username)
+                user.first_name = firstname
+                user.last_name = lastname
+                user.email = email
+                user.set_password(password)
+                user.save()
+                student = Student(user=user)
+                student.DOB = dob
+                student.save()
+                i = i + 1
+            return HttpResponseRedirect(reverse_lazy('student_list'))
         return HttpResponseRedirect(reverse_lazy('student_list'))
-    return HttpResponseRedirect(reverse_lazy('student_list'))
+    except:
+        return HttpResponseRedirect(reverse_lazy('student_list'))
 
 
 class classList(ListView):
@@ -274,7 +278,7 @@ class classCreate(CreateView):
 
 class classUpdate(UpdateView):
     model = Class
-    template_name = 'class_update.html'
+    template_name = 'class_create.html'
     form_class = classCreateForm
     success_url = reverse_lazy('class_list')
 
@@ -287,6 +291,18 @@ def classDelete(request, pk):
 
 def classAttendanceList(request, pk, att_date_id):
     theClass = Class.objects.get(id=pk)
+    students_id = theClass.student.values_list('pk', flat=True)
+    students = list()
+    attend_numbers = list()
+    for student_id in students_id:
+        students.append(Student.objects.get(student_id=student_id))
+        total_attend = Attendance.objects.filter(student_id=student_id).filter(theClass=theClass)
+        attended_class = total_attend.filter(attendance=True)
+        if total_attend.count() == 0:
+            attend_ratio = '-'
+        else:
+            attend_ratio = attended_class.count() * 100 / total_attend.count()
+        attend_numbers.append({'total_attend':total_attend.count(), 'num_attended':attended_class.count(), 'attend_ratio': attend_ratio})
     attendance = Attendance.objects.filter(theClass=theClass).order_by('-collegeDay__date')
     attendanceDay = attendance.values_list('collegeDay').distinct()
     attDateList = list()
@@ -296,28 +312,24 @@ def classAttendanceList(request, pk, att_date_id):
         attDateList.append(CollegeDay.objects.get(id=newId))
 
     context = {'class': theClass,
+               'students': students,
                'attendance': attendance,
                'attDateList': attDateList,
-               'attDateId': att_date_id}
+               'attDateId': att_date_id,
+               'attended_numbers': attend_numbers}
     return render(request, 'class_attendance_list.html', context)
-
-
-# def classAttendance(request, pk):
-#     theClass = Class.objects.get(id=pk)
-#     attendance = Attendance.objects.filter(theClass=theClass)
-#     students = theClass.student.all()
-#     context = {'class': theClass,
-#                'students': students,
-#                'attendance': attendance}
-#     return render(request, 'class_attendance.html', context)
 
 
 def collegeDayCreate(request, pk):
     if request.method == 'POST':
         date = request.POST.get('new_college_day')
         theClass = Class.objects.get(id=pk)
-        collegeDay = CollegeDay(date=date)
-        collegeDay.save()
+        if CollegeDay.objects.filter(date=date).count() == 0:
+            collegeDay = CollegeDay(date=date)
+            collegeDay.save()
+        else:
+            collegeDay = CollegeDay.objects.get(date=date)
+
         for student in theClass.student.all():
             attendance = Attendance(student=student)
             attendance.collegeDay = collegeDay
@@ -347,4 +359,27 @@ def studentAttendance(request):
                'class': theClass}
     return render(request, 'student_attendance.html', context)
 
+
+def sendEmail(request):
+    users = User.objects.all()
+    if request.method == "POST":
+        subject = request.POST.get("subject")
+        body = request.POST.get("body")
+        receiver = User.objects.get(id=request.POST.get("user"))
+        senderEmail = "gabriel_sl19798@hotmail.com"
+        try:
+            send_mail(subject, body, senderEmail, [receiver.email], fail_silently=False)
+            return render(request, "emailsending.html",{
+                "message": "email sending out",
+                "users": users
+            })
+        except:
+            return render(request, "emailsending.html", {
+                "message": "email sending failed",
+                "users": users
+            })
+    return render(request, "emailsending.html", {
+        "message": "",
+        "users": users
+    })
 

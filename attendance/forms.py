@@ -39,9 +39,9 @@ class classCreateForm(forms.ModelForm):
         model = Class
         fields = ['number', 'semester', 'course', 'lecturer', 'student']
         widgets = {
-            'number': forms.NumberInput(attrs={"class": "form-control", "placeholder": "code"}),
-            'semester': forms.Select(attrs={'class': 'form-control'}),
-            'course': forms.Select(attrs={'class': 'form-control'}),
-            'lecturer': forms.Select(attrs={'class': 'form-control'}),
+            'number': forms.NumberInput(attrs={"class": "form-control mb-3", "placeholder": "code"}),
+            'semester': forms.Select(attrs={'class': 'form-control form-select mb-3'}),
+            'course': forms.Select(attrs={'class': 'form-control form-select mb-3'}),
+            'lecturer': forms.Select(attrs={'class': 'form-control form-select mb-3'}),
             'student': FilteredSelectMultiple('student', False),
         }

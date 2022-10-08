@@ -1,31 +1,69 @@
 {% extends "base.html" %}
 {% block title %}
-{{ category.name }}
+Class
 {% endblock %}
 
 {% block content %}
-    <form action="{% url 'class_create' %}">
-    {% csrf_token %}
-        <input type="submit" value="Create new Class">
-    </form>
-    <table>
-    {% for class in object_list %}
-        <tr>
-            <td><a href="{% url 'class_attendance_list' class.id 1 %}">{{ class.number }}
-            </a></td>
-            <td>
-                <form action="{% url 'class_update' class.id %}">
-                    {% csrf_token %}
-                    <input type="submit" value="Update">
+    {% if user.is_authenticated %}
+    <section class="mt-2 p-3 d-flex justify-content-center pb-4">
+    <div class="col-0  m-1">
+        <h2>CLASS</h2>
+    </div>
+    </section>
+        <div class="card container">
+        {% if user.is_superuser %}
+            <div class="col-0 align-self-end m-3">
+                <form action="{% url 'class_create' %}">
+                {% csrf_token %}
+                    <input type="submit" value="Create new Class" class="p-2 m-2 btn btn-primary dropdown-toggle">
                 </form>
-            </td>
-            <td>
-                <form action="{% url 'class_delete' class.id %}">
-                    {% csrf_token %}
-                    <input type="submit" value="Delete">
-                </form>
-            </td>
-        </tr>
-    {% endfor %}
+            </div>
+        {% endif %}
+    <div class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 700px">
+        <table class="table table-striped mb-0 card-body p-0">
+            <thead class="table-dark  ">
+                <tr>
+                    <th scope="col">Class number</th>
+                    <th scope="col">Course</th>
+                    <th scope="col">Semester</th>
+                    {% if user.is_superuser %}
+                        <th scope="col">Update</th>
+                        <th scope="col">Delete</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for class in object_list %}
+                    {% if user.is_superuser or user == class.lecturer.user %}
+                        <tr>
+                            <td><a href="{% url 'class_attendance_list' class.id 1 %}">{{ class.number }}
+                            </a></td>
+                            <td>
+                                {{ class.course.name }}
+                            </td>
+                            <td>
+                                {{ class.semester.semester }}
+                            </td>
+                            {% if user.is_superuser %}
+                                <td>
+                                    <form action="{% url 'class_update' class.id %}">
+                                        {% csrf_token %}
+                                        <input type="submit" value="Update">
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{% url 'class_delete' class.id %}">
+                                        {% csrf_token %}
+                                        <input type="submit" value="Delete">
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}
     </table>
+        </div>
+    {% else %}
+        <h1>You does not have authentication</h1>
+    {% endif %}
 {% endblock %}

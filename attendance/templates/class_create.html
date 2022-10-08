@@ -1,13 +1,35 @@
 {% extends "base.html" %}
 {% block title %}
-{{ category.name }}
+{% if user.is_authenticated %}
+    New class
+{% endif %}
 {% endblock %}
 
 {% block content %}
-    <h3>New Class</h3>
-    <form method="post">
+    {% if user.is_authenticated %}
+        {% if class.number == null %}
+            <h3>New Class</h3>
+        {% else %}
+            <h3>Update {{ class.number }}</h3>
+        {% endif %}
+    <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Create">
+        <section class="mt-5 p-4 d-flex justify-content-center pb-4">
+            <div class="bg-white border rounded-5">
+                <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                    <div style="width: 26rem;">
+                        {{ form.as_p }}
+                        {% if class.number == null %}
+                        <input type="submit" value="Create">
+                            {% else %}
+                            <input type="submit" value="Update">
+                            {% endif %}
+                    </div>
+                </section>
+            </div>
+        </section>
     </form>
+    {% else %}
+        <h1>You does not have authentication</h1>
+    {% endif %}
 {% endblock %}

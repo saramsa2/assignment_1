@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}
+Send Email
+{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <section class="mt-5 p-4 d-flex justify-content-center pb-4">
+            <div class="bg-white border rounded-5">
+                <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                    <div style="width: 26rem;">
+                    <div class="form-group clearfix m-2">
+                        <form method="post" action="{% url 'send_email' %}">
+                        {% csrf_token %}
+                            <label for="subject" class="col-md-4 control-label text-right">Subject:</label>
+                            <input name="subject" value="" type="text" class="form-control" />
+
+                            <label for="user" class="col-md-4 control-label text-right">To:</label>
+                            <select name="user" class="col-md-4 control-label text-right form-control dropdown">
+                            {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
+                            {% endfor %}
+                            </select>
+
+                            <label for="body" class="col-md-4 control-label text-right">Body:</label>
+                            <textarea cols="50" rows="10" name="body"  class="form-control"></textarea>
+
+
+                        <div class="col-md-offset-4 mt-5 ms-5 me-5">
+                        <button  class="btn btn-success form-control">Send</button>
+                        </div>
+                        </form>
+            </div>
+        </div>
+    {% else %}
+        <h1>You does not have authentication</h1>
+    {% endif %}
+{% endblock %}

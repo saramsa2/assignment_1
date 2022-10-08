@@ -1,20 +1,39 @@
 {% extends "base.html" %}
 {% block title %}
-{{ category.name }}
+Attendance - {{ class.number }}
 {% endblock %}
 
 {% block content %}
-    <h3>{{ class.number }}-{{ class.course }}</h3>
+    {% if user.is_superuser or user == class.lecturer.user %}
+        <section class="mt-1 p-2 d-flex justify-content-center pb-2">
+        <div class="col-0  m-1">
+            <h2>{{ class.number }}-{{ class.course }} ATTENDANCE</h2>
+        </div>
+
+        </section>
+        <section class=" p-1 d-flex justify-content-center">
+            <div class="col-0 align-self-end m-3">
+                <form action="{% url 'send_email' %}">
+                {% csrf_token %}
+                    <div class="col-0 self-right m-1">
+                    <input type="submit" value="Send Email" class=" btn btn-primary dropdown-toggle">
+                    </div>
+                </form>
+            </div>
+        </section>
 
     <div class="row">
-        <div class="col-3">
+        <div class="col-2  m-3">
             <form action="{% url 'college_day_create' class.id %}" method="post">
                 {% csrf_token %}
                 <input type="date" name="new_college_day">
                 <input type="submit" value="Create new Date">
             </form>
 
+
+
             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+
                 {% for date in attDateList %}
                     {% if forloop.counter == attDateId %}
                     <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#{{ date.id }}"
@@ -25,10 +44,14 @@
                     {% endif %}
                     {{ date.date|date:'d-M-Y' }}</a>
                 {% endfor %}
+                    <a class="nav-link" id="v-pills-home-tab" data-toggle="pill" href="#StudentList"
+                       role="tab" aria-controls="v-pills-home" aria-selected="true">
+                    Student List</a>
             </div>
         </div>
 
         <div class="col-9 tab-content" id="v-pills-tabContent">
+
             {% for date in attDateList %}
                 {% if forloop.counter == attDateId %}
                 <div class="tab-pane fade show active" id="{{ date.id }}" role="tabpanel" aria-labelledby="v-pills-home-tab">
@@ -63,7 +86,44 @@
                     </table>
                 </div>
             {% endfor %}
-        </div>
+            <div class="tab-pane fade" id="StudentList" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                <div class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 600px">
+                    <table class="table table-striped mb-0 card-body p-0">
+                        <thead class="table-dark  ">
+                            <tr>
+                                <th scope="col">Student ID</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Number of Attendance</th>
+                                <th scope="col">Number of Total Class</th>
+                                <th scope="col">Attendance Ratio(%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.student_id }}</td>
+                                <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                                <td>{{ student.user.email }} </td>
+                                {% for att_stu in attended_numbers %}
+                                    {% if forloop.counter == forloop.parentloop.counter %}
+                                        <td>{{ att_stu.num_attended }}</td>
+                                        <td>{{ att_stu.total_attend }}</td>
+                                        <td>{{ att_stu.attend_ratio }}</td>
+                                    {% endif %}
+                                {% endfor %}
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
     </div>
-    </div>
+
+
+
+    {% else %}
+        <h1>You does not have authentication</h1>
+    {% endif %}
 {% endblock %}
