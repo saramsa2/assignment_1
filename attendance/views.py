@@ -1,4 +1,4 @@
-
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail
@@ -369,17 +369,19 @@ def sendEmail(request):
         senderEmail = "gabriel_sl19798@hotmail.com"
         try:
             send_mail(subject, body, senderEmail, [receiver.email], fail_silently=False)
+            messages.success(request,"email sending out")
             return render(request, "emailsending.html",{
-                "message": "email sending out",
+                "alert_message": "email sending out",
                 "users": users
             })
         except:
+            messages.success(request, "email sending failed")
             return render(request, "emailsending.html", {
-                "message": "email sending failed",
+                "alert_message": "email sending failed",
                 "users": users
             })
     return render(request, "emailsending.html", {
-        "message": "",
+        "alert_message": "",
         "users": users
     })
 

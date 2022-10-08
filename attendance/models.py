@@ -41,7 +41,7 @@ class Class(models.Model):
     semester = models.ForeignKey(Semester,  on_delete=models.CASCADE, null=False, blank=False)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=False, blank=False)
     lecturer = models.ForeignKey(Lecturer, on_delete=models.SET_NULL, null=True, blank=True)
-    student = models.ManyToManyField(Student, null=True, blank=True, verbose_name='enrolled student')
+    student = models.ManyToManyField(Student, verbose_name='enrolled student')
 
 
     def __str__(self):
